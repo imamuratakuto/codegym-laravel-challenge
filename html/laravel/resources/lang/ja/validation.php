@@ -149,6 +149,7 @@ return [
     'attributes' => [
         'key' => 'キー',
         'name' => '名前',
+        'detail' => '詳細',
         'keyword' => 'キーワード',
         'kind' => '種別',
         'status' => '状態',
