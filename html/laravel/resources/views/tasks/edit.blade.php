@@ -7,23 +7,54 @@
         modal.classList.toggle('pointer-events-none');
         body.classList.toggle('modal-active');
     };
-
+    
+    //課題のModalにtextを挿入する関数
+    function insertTaskModalText() {
+        modalTitle.innerHTML = "{{ __('Are you sure you want to delete this task?') }}";
+        modalMessage.innerHTML = "{{ __('Are you sure you want to delete this task? Once a task is deleted, all of its resources and data will be permanently deleted.') }}";
+    };
+    
+    //コメントのModalのtextに挿入する関数
+    function insertCommentModalText() {
+        modalTitle.innerHTML = "{{ __('Are you sure you want to delete this comment?') }}";
+        modalMessage.innerHTML = "{{ __('Are you sure you want to delete this comment? Once a comment is deleted, all of its resources and data will be permanently deleted.') }}";
+    };
+    //PHPの変数を受け取るJSの関数
+    function onclickModalOpen(url, deleteKind) {
+        const modalForm = document.getElementById('modalForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        //modalTitle,modalMessageのinnerHTMLを書き換える
+        if (deleteKind === "taskDelete") {
+            insertTaskModalText();
+        }
+            
+        if (deleteKind === "commentDelete") {
+            insertCommentModalText();
+        }
+        
+        modalForm.action = url;
+        //常に書き換えた後でtoggleModal()を呼び出す
+        toggleModal();
+    }
+    
+    
     const overlay = document.querySelector('.modal-overlay');
     overlay.addEventListener('click', toggleModal);
-
+    
+    
     var closeModal = document.querySelectorAll('.modal-close');
     for (var i = 0; i < closeModal.length; i++) {
         closeModal[i].addEventListener('click', toggleModal);
     }
-
+    
     var openModal = document.querySelectorAll('.modal-open');
     for (var i = 0; i < openModal.length; i++) {
         openModal[i].addEventListener('click', function(event) {
             event.preventDefault();
-            toggleModal();
         })
     }
-
+     
     document.onkeydown = function(evt) {
         evt = evt || window.event;
         var isEscape = false;
@@ -36,7 +67,6 @@
             toggleModal();
         }
     };
-
 </script>
 @endsection
 <x-app-layout>
@@ -95,12 +125,12 @@
                         <x-input id="name" class="block mt-1 w-full {{ $errors->has('name') ? 'border-red-600' :'' }}" type="text" name="name" :value="old('name', $task->name)" placeholder="課題名" required autofocus />
                     </div>
                 </div>
-                
+
                 <div class="md:w-full mb-6">
                     <x-label for="detail" :value="__('Task Detail')" class="{{ $errors->has('detail') ? 'text-red-600' :'' }}" />
-                    <x-textarea id="detail" class="block mt-1 w-full {{ $errors->has('detail') ? 'border-red-600' :'' }}" type="textarea" rows="10" name="detail" :value="old('detail', $task->detail)" placeholder="課題の詳細"  maxlength='1000' autofocus />
+                    <x-textarea id="detail" class="block mt-1 w-full {{ $errors->has('detail') ? 'border-red-600' :'' }}" type="textarea" rows="10" name="detail" :value="old('detail', $task->detail)" placeholder="課題の詳細" maxlength='1000' autofocus />
                 </div>
-                
+
                 <div class="-mx-3 md:flex mb-6">
                     <div class="md:w-1/4 px-3 mb-6">
                         <x-label for="task_status_id" :value="__('Task Status')" class="{{ $errors->has('task_status_id') ? 'text-red-600' :'' }}" />
@@ -122,18 +152,20 @@
                 </div>
             </div>
         </form>
-
-        <form name="deleteform" method="POST" action="{{ route('tasks.destroy', ['project' => $project->id, 'task' => $task]) }}">
+        
+        <form id="modalForm" name="deleteform" method="POST" action="{{ route('tasks.destroy', ['project' => $project->id, 'task' => $task->id]) }}">
             @csrf
             @method('DELETE')
-            <!-- Navigation -->
+        <!--Navigation -->
+            @if(Auth::user()->id === $task->created_user_id)
             <div class="max-w-full mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-start">
-                <x-button class="modal-open m-2 px-10 bg-red-600 text-white hover:bg-red-700 active:bg-red-900 focus:border-red-900 ring-red-300">
+                <x-button class="modal-open m-2 px-10 bg-red-600 text-white hover:bg-red-700 active:bg-red-900 focus:border-red-900 ring-red-300" onclick="onclickModalOpen('{{ route('tasks.destroy', ['project' => $project->id, 'task' => $task->id]) }}', 'taskDelete')">
                     {{ __('Delete') }}
                 </x-button>
             </div>
+            @endif
 
-            <!--Modal-->
+        <!--Modal-->
             <div class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
                 <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
@@ -148,7 +180,7 @@
 
                     <div class="modal-content py-4 text-left px-6">
                         <div class="flex justify-between items-center pb-3">
-                            <p class="text-2xl font-bold">{{ __('Are you sure you want to delete this task?') }}</p>
+                            <p id="modalTitle" class="text-2xl font-bold"></p>
                             <div class="modal-close cursor-pointer z-50">
                                 <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
                                     <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
@@ -156,7 +188,7 @@
                             </div>
                         </div>
 
-                        <p>{{ __('Are you sure you want to delete this task? Once a task is deleted, all of its resources and data will be permanently deleted.') }}</p>
+                        <p id="modalMessage"></p>
 
                         <div class="flex justify-end pt-2">
                             <x-link-button class="modal-close m-2" href="#">
@@ -170,5 +202,48 @@
                 </div>
             </div>
         </form>
+
+        @if(0 < $comments->count())
+        <p class="mx-6 mt-3">{{__('Comment')}}</p>
+            @foreach($comments as $comment)
+            <div class="max-w-full">
+                <div class="card mx-6 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 bg-white" style="word-break: break-all">
+                    <div class="card-body m-1">
+                        <div class="card-title">
+                            <p><b>{{ $comment->name }}</b> <b>{{ $comment->created_at }}</b></p>
+                        </div>
+                        <div class="card-text">
+                            <p style="white-space: pre-wrap">{{ $comment->comment }}</p>
+                            <form name="deleteform" method="POST" action="{{ route('comments.destroy', ['project' => $project->id, 'task' => $task->id, 'comment' => $comment->id]) }}">
+                                @csrf
+                                @method('DELETE')
+                                @if(Auth::user()->id === $comment->comment_user_id)
+                                <div class="flex justify-end">
+                                    <x-button class="modal-open mb-1 px-5 bg-red-600 text-white hover:bg-red-700 active:bg-red-900 focus:border-red-900 ring-red-300" onclick="onclickModalOpen('{{ route('comments.destroy', ['project' => $project->id, 'task' => $task->id, 'comment' => $comment->id]) }}', 'commentDelete')">
+                                        {{ __('Delete') }}
+                                    </x-button>
+                                </div>
+                                @endif
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        @endif
+
+        <form name="comment" method="POST" action="{{ route('comments.store', ['project' => $project->id, 'task' => $task->id])}}">
+            @csrf
+            <div class="max-w-full pt-6 mx-6">
+                <x-textarea class="w-full" name="comment" :value="old('comment')" placeholder="コメント" maxlength='1000' />
+            </div>
+            <div class="max-w-full mx-6 flex justify-end">
+                <x-button class="m-2 px-10 bg-brown-600 text-white">
+                    {{ __('Post') }}
+                </x-button>
+            </div>
+        </form>
+
     </div>
+
 </x-app-layout>

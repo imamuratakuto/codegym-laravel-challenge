@@ -26,7 +26,7 @@ class AddDetailToTasksTable extends Migration
     public function down()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropCoulmn('detail');
+            $table->dropColumn('detail');
         });
     }
 }

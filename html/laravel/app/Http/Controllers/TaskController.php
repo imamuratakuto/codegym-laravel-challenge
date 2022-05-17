@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\TaskCategory;
 use App\Models\TaskKind;
 use App\Models\TaskStatus;
+use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -147,12 +148,20 @@ class TaskController extends Controller
      * @param  \App\Models\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function edit(Project $project, Task $task)
+    public function edit(Project $project, Task $task, Comment $comment)
     {
         $task_kinds = TaskKind::all();
         $task_statuses = TaskStatus::all();
         $task_categories = TaskCategory::all();
         $assigners = User::all();
+        $comments = Comment::select([
+            'comments.*',
+            'users.name'
+            ])
+            ->from('comments')
+            ->join('users', 'comments.comment_user_id', '=', 'users.id')
+            ->where('comments.task_id', '=', $task->id)
+            ->get();
 
         return view('tasks.edit', [
             'project' => $project,
@@ -160,6 +169,7 @@ class TaskController extends Controller
             'task_statuses' => $task_statuses,
             'task_categories' => $task_categories,
             'assigners' => $assigners,
+            'comments' => $comments,
             'task' => $task,
         ]);
     }
@@ -183,11 +193,17 @@ class TaskController extends Controller
             'task_resolution_id' => 'nullable|integer',
             'due_date' => 'nullable|date',
         ]);
-
-        if ($task->update($request->all())) {
+        
+        $user = auth()->user();
+        
+        if($user->can('update', $task)) {
+            if($task->update($request->all())) {
             $flash = ['success' => __('Task updated successfully.')];
-        } else {
+            } else {
             $flash = ['error' => __('Failed to update the task.')];
+            }
+        } else {
+            $flash = ['error' => __('Not authorized.')];
         }
 
         return redirect()
@@ -203,10 +219,16 @@ class TaskController extends Controller
      */
     public function destroy(Project $project, Task $task)
     {
-        if ($task->delete()) {
+        $user = auth()->user();
+        
+        if($user->can('delete', $task)) {
+            if($task->delete()) {
             $flash = ['success' => __('Task deleted successfully.')];
-        } else {
+            } else {
             $flash = ['error' => __('Failed to delete the task.')];
+            }
+        } else {
+            $flash = ['error' => __('Not authorized.')];
         }
 
         return redirect()
