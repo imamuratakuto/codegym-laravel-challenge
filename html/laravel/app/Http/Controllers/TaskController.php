@@ -187,13 +187,11 @@ class TaskController extends Controller
             'task_resolution_id' => 'nullable|integer',
             'due_date' => 'nullable|date',
         ]);
-        
         if ($task->update($request->all())) {
             $flash = ['success' => __('Task updated successfully.')];
         } else {
             $flash = ['error' => __('Failed to update the task.')];
         }
-        
         return redirect()
             ->route('tasks.edit', ['project' => $project->id, 'task' => $task])
             ->with($flash);

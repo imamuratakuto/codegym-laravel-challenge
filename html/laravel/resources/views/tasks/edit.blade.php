@@ -9,13 +9,13 @@
     };
     
     //課題のModalにtextを挿入する関数
-    function insertTaskModalText() {
+    function switchTaskModalText() {
         modalTitle.innerHTML = "{{ __('Are you sure you want to delete this task?') }}";
         modalMessage.innerHTML = "{{ __('Are you sure you want to delete this task? Once a task is deleted, all of its resources and data will be permanently deleted.') }}";
     };
     
     //コメントのModalのtextに挿入する関数
-    function insertCommentModalText() {
+    function switchCommentModalText() {
         modalTitle.innerHTML = "{{ __('Are you sure you want to delete this comment?') }}";
         modalMessage.innerHTML = "{{ __('Are you sure you want to delete this comment? Once a comment is deleted, all of its resources and data will be permanently deleted.') }}";
     };
@@ -26,11 +26,11 @@
         const modalMessage = document.getElementById('modalMessage');
         //modalTitle,modalMessageのinnerHTMLを書き換える
         if (deleteKind === "taskDelete") {
-            insertTaskModalText();
+            switchTaskModalText();
         }
             
         if (deleteKind === "commentDelete") {
-            insertCommentModalText();
+            switchCommentModalText();
         }
         
         modalForm.action = url;
@@ -47,14 +47,12 @@
     for (var i = 0; i < closeModal.length; i++) {
         closeModal[i].addEventListener('click', toggleModal);
     }
-    
     var openModal = document.querySelectorAll('.modal-open');
     for (var i = 0; i < openModal.length; i++) {
         openModal[i].addEventListener('click', function(event) {
             event.preventDefault();
         })
     }
-     
     document.onkeydown = function(evt) {
         evt = evt || window.event;
         var isEscape = false;
@@ -152,18 +150,15 @@
                 </div>
             </div>
         </form>
-        
         <form id="modalForm" name="deleteform" method="POST" action="{{ route('tasks.destroy', ['project' => $project->id, 'task' => $task->id]) }}">
             @csrf
             @method('DELETE')
         <!--Navigation -->
-            @if(Auth::user()->id === $task->created_user_id)
             <div class="max-w-full mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-start">
                 <x-button class="modal-open m-2 px-10 bg-red-600 text-white hover:bg-red-700 active:bg-red-900 focus:border-red-900 ring-red-300" onclick="onclickModalOpen('{{ route('tasks.destroy', ['project' => $project->id, 'task' => $task->id]) }}', 'taskDelete')">
                     {{ __('Delete') }}
                 </x-button>
             </div>
-            @endif
 
         <!--Modal-->
             <div class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">

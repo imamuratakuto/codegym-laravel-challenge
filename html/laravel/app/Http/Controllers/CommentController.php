@@ -19,12 +19,12 @@ class CommentController extends Controller
     {
         $request->validate([
                 'comment' => 'required|string|max:1000',
-            ]);
+        ]);
         if (Comment::create([
                 'task_id' => $task->id,
                 'comment_user_id' => $request->user()->id,
                 'comment' => $request->comment,
-            ])) {
+        ])) {
             $flash = ['success' => __('Added a comment.')];
         } else {
             $flash = ['error' => __('Failed to add comment.')];
