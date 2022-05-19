@@ -210,7 +210,7 @@
                 <div class="card mx-6 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 bg-white" style="word-break: break-all">
                     <div class="card-body m-1">
                         <div class="card-title">
-                            <p><b>{{ $comment->name }}</b> <b>{{ $comment->created_at }}</b></p>
+                            <p><b>{{ $comment->user->name }}</b> <b>{{ $comment->created_at }}</b></p>
                         </div>
                         <div class="card-text">
                             <p style="white-space: pre-wrap">{{ $comment->comment }}</p>

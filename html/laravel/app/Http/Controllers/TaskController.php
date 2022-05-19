@@ -154,14 +154,8 @@ class TaskController extends Controller
         $task_statuses = TaskStatus::all();
         $task_categories = TaskCategory::all();
         $assigners = User::all();
-        $comments = Comment::select([
-            'comments.*',
-            'users.name'
-            ])
-            ->from('comments')
-            ->join('users', 'comments.comment_user_id', '=', 'users.id')
-            ->where('comments.task_id', '=', $task->id)
-            ->get();
+        
+        $comments = $task->task_comments()->with('user')->get();
 
         return view('tasks.edit', [
             'project' => $project,
@@ -194,18 +188,12 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
         ]);
         
-        $user = auth()->user();
-        
-        if($user->can('update', $task)) {
-            if($task->update($request->all())) {
+        if ($task->update($request->all())) {
             $flash = ['success' => __('Task updated successfully.')];
-            } else {
-            $flash = ['error' => __('Failed to update the task.')];
-            }
         } else {
-            $flash = ['error' => __('Not authorized.')];
+            $flash = ['error' => __('Failed to update the task.')];
         }
-
+        
         return redirect()
             ->route('tasks.edit', ['project' => $project->id, 'task' => $task])
             ->with($flash);
@@ -219,16 +207,10 @@ class TaskController extends Controller
      */
     public function destroy(Project $project, Task $task)
     {
-        $user = auth()->user();
-        
-        if($user->can('delete', $task)) {
-            if($task->delete()) {
+        if ($task->delete()) {
             $flash = ['success' => __('Task deleted successfully.')];
-            } else {
-            $flash = ['error' => __('Failed to delete the task.')];
-            }
         } else {
-            $flash = ['error' => __('Not authorized.')];
+            $flash = ['error' => __('Failed to delete the task.')];
         }
 
         return redirect()
