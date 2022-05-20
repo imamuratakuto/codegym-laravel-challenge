@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\TaskCategory;
 use App\Models\TaskKind;
 use App\Models\TaskStatus;
+use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -154,12 +155,15 @@ class TaskController extends Controller
         $task_categories = TaskCategory::all();
         $assigners = User::all();
 
+        $comments = $task->task_comments()->with('user')->get();
+
         return view('tasks.edit', [
             'project' => $project,
             'task_kinds' => $task_kinds,
             'task_statuses' => $task_statuses,
             'task_categories' => $task_categories,
             'assigners' => $assigners,
+            'comments' => $comments,
             'task' => $task,
         ]);
     }
@@ -183,13 +187,11 @@ class TaskController extends Controller
             'task_resolution_id' => 'nullable|integer',
             'due_date' => 'nullable|date',
         ]);
-
         if ($task->update($request->all())) {
             $flash = ['success' => __('Task updated successfully.')];
         } else {
             $flash = ['error' => __('Failed to update the task.')];
         }
-
         return redirect()
             ->route('tasks.edit', ['project' => $project->id, 'task' => $task])
             ->with($flash);
