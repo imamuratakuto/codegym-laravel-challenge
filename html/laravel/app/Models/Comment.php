@@ -18,7 +18,7 @@ class Comment extends Model
     ];
 
     public $timestamps = false;
-    
+
     public function user()
     {
         return $this->belongsTo(User::class, 'comment_user_id');

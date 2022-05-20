@@ -42,7 +42,7 @@ class CommentController extends Controller
     public function destroy(Project $project, Task $task, Comment $comment)
     {
         $user = auth()->user();
-        
+
         if ($user->can('delete', $comment)) {
             if ($comment->delete()) {
                 $flash = ['success' => __('Comment deleted successfully.')];
@@ -52,7 +52,7 @@ class CommentController extends Controller
         } else {
             $flash = ['error' => __('Not authorized.')];
         }
-    
+
         return redirect()
             ->route('tasks.edit', ['project' => $project->id, 'task' => $task])
             ->with($flash);

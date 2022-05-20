@@ -128,7 +128,7 @@ class Task extends Model
     {
         return $this->belongsTo(TaskResolution::class, 'task_resolution_id');
     }
-    
+
     public function task_comments()
     {
         return $this->hasMany(Comment::class, 'task_id');

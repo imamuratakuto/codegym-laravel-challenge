@@ -7,13 +7,13 @@
         modal.classList.toggle('pointer-events-none');
         body.classList.toggle('modal-active');
     };
-    
+
     // モーダルのテキストを切り替える関数(課題削除)
     function switchTaskModalText() {
         modalTitle.innerHTML = "{{ __('Are you sure you want to delete this task?') }}";
         modalMessage.innerHTML = "{{ __('Are you sure you want to delete this task? Once a task is deleted, all of its resources and data will be permanently deleted.') }}";
     };
-    
+
     // モーダルのテキストを切り替える関数(コメント削除)
     function switchCommentModalText() {
         modalTitle.innerHTML = "{{ __('Are you sure you want to delete this comment?') }}";
@@ -28,21 +28,21 @@
         if (deleteKind === "taskDelete") {
             switchTaskModalText();
         }
-            
+
         if (deleteKind === "commentDelete") {
             switchCommentModalText();
         }
-        
+
         modalForm.action = url;
         //常に書き換えた後でtoggleModal()を呼び出す
         toggleModal();
     }
-    
-    
+
+
     const overlay = document.querySelector('.modal-overlay');
     overlay.addEventListener('click', toggleModal);
-    
-    
+
+
     var closeModal = document.querySelectorAll('.modal-close');
     for (var i = 0; i < closeModal.length; i++) {
         closeModal[i].addEventListener('click', toggleModal);
