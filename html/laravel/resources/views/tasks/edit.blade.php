@@ -8,13 +8,13 @@
         body.classList.toggle('modal-active');
     };
     
-    //課題のModalにtextを挿入する関数
+    // モーダルのテキストを切り替える関数(課題削除)
     function switchTaskModalText() {
         modalTitle.innerHTML = "{{ __('Are you sure you want to delete this task?') }}";
         modalMessage.innerHTML = "{{ __('Are you sure you want to delete this task? Once a task is deleted, all of its resources and data will be permanently deleted.') }}";
     };
     
-    //コメントのModalのtextに挿入する関数
+    // モーダルのテキストを切り替える関数(コメント削除)
     function switchCommentModalText() {
         modalTitle.innerHTML = "{{ __('Are you sure you want to delete this comment?') }}";
         modalMessage.innerHTML = "{{ __('Are you sure you want to delete this comment? Once a comment is deleted, all of its resources and data will be permanently deleted.') }}";

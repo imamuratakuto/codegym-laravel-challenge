@@ -148,7 +148,7 @@ class TaskController extends Controller
      * @param  \App\Models\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function edit(Project $project, Task $task, Comment $comment)
+    public function edit(Project $project, Task $task)
     {
         $task_kinds = TaskKind::all();
         $task_statuses = TaskStatus::all();
@@ -156,7 +156,7 @@ class TaskController extends Controller
         $assigners = User::all();
         
         $comments = $task->task_comments()->with('user')->get();
-
+        
         return view('tasks.edit', [
             'project' => $project,
             'task_kinds' => $task_kinds,
